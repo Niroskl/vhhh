@@ -1,5 +1,3 @@
-pip install pygame
-python unicorn.py
 import pygame
 import random
 
