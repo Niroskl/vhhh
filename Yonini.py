@@ -1,16 +1,15 @@
 import streamlit as st
 
-# רשימת שאלות לדוגמה
+# רשימת שורות מתוך שירים עם התשובה - שם השיר
 questions = [
-    {"question": "מי שר את השיר 'Imagine'?", "answer": "ג'ון לנון"},
-    {"question": "מי שר את השיר 'Thriller'?", "answer": "מייקל ג'קסון"},
-    {"question": "מי שר את השיר 'Bohemian Rhapsody'?", "answer": "פרדי מרקורי"},
-    {"question": "מי שר את השיר 'Like a Rolling Stone'?", "answer": "בוב דילן"},
-    {"question": "מי שר את השיר 'Shape of You'?", "answer": "אד שירן"},
-    # אפשר להוסיף עוד שאלות פה...
+    {"line": "Imagine all the people living life in peace", "answer": "Imagine"},
+    {"line": "Cause this is thriller, thriller night", "answer": "Thriller"},
+    {"line": "Is this the real life? Is this just fantasy?", "answer": "Bohemian Rhapsody"},
+    {"line": "How many roads must a man walk down before you call him a man?", "answer": "Blowin' in the Wind"},
+    {"line": "When you were here before, couldn't look you in the eye", "answer": "Creep"},
 ]
 
-st.title("חידון שירים")
+st.title("חידון שירים - נחש את השיר מהמילים")
 
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -20,15 +19,14 @@ if "finished" not in st.session_state:
     st.session_state.finished = False
 
 def check_answer():
-    user_answer = st.session_state.user_answer.strip()
-    current_q = questions[st.session_state.current_question]
-    if user_answer == current_q["answer"]:
+    user_answer = st.session_state.user_answer.strip().lower()
+    correct_answer = questions[st.session_state.current_question]["answer"].lower()
+    if user_answer == correct_answer:
         st.session_state.score += 1
         st.success("נכון! 🎉")
     else:
-        st.error(f"לא נכון ❌ התשובה הנכונה היא: {current_q['answer']}")
+        st.error(f"לא נכון ❌ התשובה הנכונה היא: {questions[st.session_state.current_question]['answer']}")
     st.session_state.current_question += 1
-    st.session_state.user_answer = ""
 
 if st.session_state.finished:
     st.write(f"המשחק הסתיים! ניקוד סופי: {st.session_state.score}/{len(questions)}")
@@ -39,11 +37,11 @@ if st.session_state.finished:
 else:
     if st.session_state.current_question < len(questions):
         q = questions[st.session_state.current_question]
-        st.write(q["question"])
-        st.text_input("הקלד את התשובה שלך כאן:", key="user_answer")
+        st.write(f"מילים מתוך השיר: \n\n> {q['line']}")
+        st.text_input("מה שם השיר?", key="user_answer", value="")
         if st.button("שלח תשובה"):
             if st.session_state.user_answer.strip() == "":
-                st.warning("אנא הכנס תשובה לפני שליחה")
+                st.warning("אנא הזן תשובה לפני שליחה")
             else:
                 check_answer()
     else:
