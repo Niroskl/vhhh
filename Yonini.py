@@ -1,1 +1,1 @@
-print("jajajja")
+print('I love my dad")
