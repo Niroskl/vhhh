@@ -1,62 +1,70 @@
 import streamlit as st
-import random
 
-st.set_page_config(page_title="Baby Unicorn Game", layout="centered")
+st.set_page_config(page_title="Baby Unicorn", layout="centered")
 
 st.markdown("""
     <style>
-        body { background: #ffeaff; }
-        #game-area {
-            width: 400px;
-            height: 500px;
-            background: linear-gradient(#ffdfff, #fff3ff);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
+        body { background:#ffe6ff; }
+        #game {
+            width: 350px;
+            height: 420px;
+            background: linear-gradient(#ffe6ff,#fff0ff);
+            border-radius: 25px;
             margin: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding-top: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
         }
         .unic {
-            width: 60px;
-            height: 60px;
-            position: absolute;
-            transition: 0.05s;
+            width: 180px;
+            border-radius: 20px;
         }
-        .star {
-            width: 40px;
-            position: absolute;
+        .bar {
+            width: 80%;
+            height: 20px;
+            background: #ffd3f7;
+            border-radius: 12px;
+            margin: auto;
+            overflow: hidden;
+        }
+        .fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: 0.3s;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# --- GAME LOGIC IN SESSION STATE ---
-if "x" not in st.session_state:
-    st.session_state.x = 170
-    st.session_state.y = 400
-    st.session_state.star_x = random.randint(0, 350)
-    st.session_state.star_y = random.randint(0, 200)
-    st.session_state.score = 0
+# --- STATE ---
+if "food" not in st.session_state:
+    st.session_state.food = 50
+    st.session_state.water = 50
 
-# Controls
-col1, col2, col3 = st.columns(3)
-with col1:
-    if st.button("⬅️"):
-        st.session_state.x = max(0, st.session_state.x - 20)
-with col3:
-    if st.button("➡️"):
-        st.session_state.x = min(340, st.session_state.x + 20)
+# --- BUTTONS ---
+st.markdown("<div id='game'>", unsafe_allow_html=True)
 
-# Collision
-if abs(st.session_state.x - st.session_state.star_x) < 40 and abs(st.session_state.y - st.session_state.star_y) < 40:
-    st.session_state.score += 1
-    st.session_state.star_x = random.randint(0, 350)
-    st.session_state.star_y = random.randint(0, 300)
+st.image("https://i.imgur.com/xF7Lw1n.png", width=200, caption="🦄 חד־קרן תינוק")
 
-# Render game
+st.write("### 🍼 מצב רעב:")
 st.markdown(f"""
-    <div id="game-area">
-        <img src="https://i.imgur.com/JnFqz3a.png" class="unic" style="left:{st.session_state.x}px;top:{st.session_state.y}px;">
-        <img src="https://i.imgur.com/9yQ6g1B.png" class="star" style="left:{st.session_state.star_x}px;top:{st.session_state.star_y}px;">
-    </div>
-    <h3 style="text-align:center;">⭐ ניקוד: {st.session_state.score}</h3>
-""", unsafe_allow_html=True)
+<div class="bar">
+    <div class="fill" style="width:{st.session_state.food}%; background:#ff92d0;"></div>
+</div>""", unsafe_allow_html=True)
+
+st.write("### 💧 מצב צמא:")
+st.markdown(f"""
+<div class="bar">
+    <div class="fill" style="width:{st.session_state.water}%; background:#92caff;"></div>
+</div>""", unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("🍎 תן אוכל"):
+        st.session_state.food = min(100, st.session_state.food + 15)
+
+with col2:
+    if st.button("🥤 תן מים"):
+        st.session_state.water = min(100, st.session_state.water + 15)
+
+st.markdown("</div>", unsafe_allow_html=True)
