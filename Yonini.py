@@ -1,71 +1,56 @@
-import tkinter as tk
-import random
-from functools import partial
+import pygame
+import sys
 
-class MemoryGame:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("משחק זיכרון")
-        self.buttons = []
-        self.first = None
-        self.second = None
-        self.lock = False  # מונע לחיצות בזמן בדיקה
-        self.matches = 0
-        
-        # רשימת ערכים - 8 זוגות
-        self.values = list(range(1, 9)) * 2
-        random.shuffle(self.values)
-        
-        self.create_board()
+pygame.init()
 
-    def create_board(self):
-        for i in range(4):
-            row = []
-            for j in range(4):
-                btn = tk.Button(self.root, text="?", width=6, height=3, 
-                                command=partial(self.on_click, i*4 + j))
-                btn.grid(row=i, column=j, padx=5, pady=5)
-                self.buttons.append(btn)
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("משחק יריות פשוט")
 
-    def on_click(self, index):
-        if self.lock:
-            return
-        btn = self.buttons[index]
-        if btn["text"] != "?":
-            return  # כבר נחשף
-        
-        btn["text"] = str(self.values[index])
-        btn.update()
-        
-        if not self.first:
-            self.first = index
-        elif not self.second and index != self.first:
-            self.second = index
-            self.lock = True
-            self.root.after(1000, self.check_match)
+clock = pygame.time.Clock()
 
-    def check_match(self):
-        first_btn = self.buttons[self.first]
-        second_btn = self.buttons[self.second]
+# צבעים
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 
-        if self.values[self.first] == self.values[self.second]:
-            self.matches += 1
-            # לבדוק אם ניצחת
-            if self.matches == 8:
-                self.show_win_message()
+# שחקן
+player_pos = [WIDTH // 2, HEIGHT - 50]
+player_speed = 5
+player_size = 50
+
+# כדורים
+bullets = []
+bullet_speed = 7
+bullet_size = 5
+
+while True:
+    screen.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player_pos[0] > 0:
+        player_pos[0] -= player_speed
+    if keys[pygame.K_RIGHT] and player_pos[0] < WIDTH - player_size:
+        player_pos[0] += player_speed
+    if keys[pygame.K_SPACE]:
+        # ליצור כדור חדש
+        bullets.append([player_pos[0] + player_size // 2, player_pos[1]])
+
+    # לעדכן ולשרטט כדורים
+    for bullet in bullets[:]:
+        bullet[1] -= bullet_speed
+        if bullet[1] < 0:
+            bullets.remove(bullet)
         else:
-            first_btn["text"] = "?"
-            second_btn["text"] = "?"
+            pygame.draw.rect(screen, RED, (bullet[0], bullet[1], bullet_size, bullet_size))
 
-        self.first = None
-        self.second = None
-        self.lock = False
+    # שרטוט השחקן
+    pygame.draw.rect(screen, BLACK, (player_pos[0], player_pos[1], player_size, player_size))
 
-    def show_win_message(self):
-        win_label = tk.Label(self.root, text="כל הכבוד! ניצחת!", font=("Arial", 24), fg="green")
-        win_label.grid(row=4, column=0, columnspan=4, pady=10)
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    game = MemoryGame(root)
-    root.mainloop()
+    pygame.display.flip()
+    clock.tick(60)
