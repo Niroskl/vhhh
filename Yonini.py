@@ -1,56 +1,44 @@
-import pygame
-import sys
+import streamlit as st
 
-pygame.init()
+st.set_page_config(page_title="Pizza Maker", page_icon="🍕")
 
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("משחק יריות פשוט")
+st.title("🍕 הכנת פיצה Streamlit")
 
-clock = pygame.time.Clock()
+st.write("בחר את כל מה שאתה רוצה בפיצה שלך:")
 
-# צבעים
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
+size = st.selectbox(
+    "גודל הפיצה:",
+    ["קטן", "בינוני", "גדול"]
+)
 
-# שחקן
-player_pos = [WIDTH // 2, HEIGHT - 50]
-player_speed = 5
-player_size = 50
+toppings = st.multiselect(
+    "תוספות:",
+    ["זיתים", "פטריות", "בצל", "תירס", "גבינה נוספת", "ביצת עין", "אננס", "טונה", "פפרוני"]
+)
 
-# כדורים
-bullets = []
-bullet_speed = 7
-bullet_size = 5
+extra_cheese = st.checkbox("🧀 להוסיף עוד גבינה?")
 
-while True:
-    screen.fill(WHITE)
+# חישוב מחיר בסיסי
+price = 20
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+if size == "בינוני":
+    price += 10
+elif size == "גדול":
+    price += 20
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player_pos[0] > 0:
-        player_pos[0] -= player_speed
-    if keys[pygame.K_RIGHT] and player_pos[0] < WIDTH - player_size:
-        player_pos[0] += player_speed
-    if keys[pygame.K_SPACE]:
-        # ליצור כדור חדש
-        bullets.append([player_pos[0] + player_size // 2, player_pos[1]])
+price += len(toppings) * 3
 
-    # לעדכן ולשרטט כדורים
-    for bullet in bullets[:]:
-        bullet[1] -= bullet_speed
-        if bullet[1] < 0:
-            bullets.remove(bullet)
-        else:
-            pygame.draw.rect(screen, RED, (bullet[0], bullet[1], bullet_size, bullet_size))
+if extra_cheese:
+    price += 5
 
-    # שרטוט השחקן
-    pygame.draw.rect(screen, BLACK, (player_pos[0], player_pos[1], player_size, player_size))
+st.write("---")
+st.write("### 🍽️ סיכום ההזמנה שלך:")
 
-    pygame.display.flip()
-    clock.tick(60)
+st.write(f"**גודל:** {size}")
+st.write(f"**תוספות:** {', '.join(toppings) if toppings else 'ללא'}")
+st.write(f"**תוספת גבינה:** {'כן' if extra_cheese else 'לא'}")
+
+st.write(f"### 💰 מחיר סופי: **₪{price}**")
+
+if st.button("הכין פיצה!"):
+    st.success("🍕 הפיצה שלך מוכנה! בתיאבון 😄")
